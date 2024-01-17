@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
             defenceCosts[i] = speedCosts[i-1] * 9 * i;
             healthCosts[i] = speedCosts[i-1] * 9 * i;
         }
+
+
     }
 
     void Update()
@@ -74,7 +76,7 @@ public class GameManager : MonoBehaviour
         int cost = healthCosts[pageIndex];
         int change = (int)Mathf.Round(cost * 0.05f);
         if (stats.Money() < cost) return;
-        stats.ChangeHealthMax(change);
+        stats.ChangeHealth(change);
         healthCosts[pageIndex] = (int)Mathf.Round(cost * 1.1f);
     }
 
@@ -125,16 +127,21 @@ public struct PlayerStats {
 
     #region Get/Set Stats
 
+    public void SetSpeed(int change) {speed = change;}
     public void ChangeSpeed(int change) { speed += change; }
     public int Speed() { return speed; }
 
+    public void SetStrength(int change) {strength = change;}
     public void ChangeStrength(int change) { strength += change; }
     public int Strength() { return strength; }
 
+    public void SetDefence(int change) {defence = change;}
     public void ChangeDefence(int change) { defence += change; }
     public int Defence() { return defence; }
 
-    public void ChangeHealthMax(int change) { healthMax += change; healthCurrent += change; }
+    public void SetHealthMax(int change) {healthMax = change;}
+    public void SetHealthCurrent(int change) {healthCurrent = change;}
+    public void ChangeHealth(int change) { healthMax += change; healthCurrent += change; }
     public void ChangeHealthCurrent(int change) { healthCurrent += change; }
     public int HealthMax () { return healthMax; }
     public int HealthCurrent() { return healthCurrent; }
