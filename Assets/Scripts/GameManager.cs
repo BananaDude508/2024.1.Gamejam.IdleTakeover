@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     int currentIndex = 0;
 
 
+    [SerializeField]
     PlayerStats stats = new PlayerStats(1, 10, 0, 100, 1000);
 
     public TextMeshProUGUI moneyText;
@@ -55,7 +56,7 @@ public class GameManager : MonoBehaviour
     {
         UpdateUIDisplay();
     }
-        void UpdateUIDisplay()
+    void UpdateUIDisplay()
     {
         // Stats
         moneyText.SetText(stats.Money().ToString());
@@ -158,8 +159,10 @@ public class GameManager : MonoBehaviour
 
 }
 
-public struct PlayerStats {
-    int speed, strength, defence, healthMax, healthCurrent, money;
+[System.Serializable]
+public struct PlayerStats
+{
+    public int speed, strength, defence, healthMax, healthCurrent, money;
 
     public PlayerStats(int speed, int strength, int defence, int healthMax, int money)
     {
