@@ -67,7 +67,8 @@ public class GameManager : MonoBehaviour
         
         // Slider
         healthSliderText.SetText(stats.HealthCurrent()+"/"+stats.HealthMax());
-        healthSlider.value = stats.HealthMax() / stats.HealthCurrent();
+        healthSlider.maxValue = stats.HealthMax();
+        healthSlider.value = stats.HealthCurrent();
 
         // Upgrade Texts
         speedUpgradeTexts[currentIndex].SetText("Speed $"+speedCosts[currentIndex]+" for "+(int)Mathf.Round(speedCosts[currentIndex]*0.01f*(currentIndex+0.5f)));

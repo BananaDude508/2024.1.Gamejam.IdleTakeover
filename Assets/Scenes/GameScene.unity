@@ -8243,6 +8243,13 @@ MonoBehaviour:
   - {fileID: 315042669}
   - {fileID: 668978332}
   - {fileID: 614522402}
+  stats:
+    speed: 1
+    strength: 10
+    defence: 0
+    healthMax: 100
+    healthCurrent: 100
+    money: 1000
   moneyText: {fileID: 1616534200}
   speedText: {fileID: 578486685}
   strengthText: {fileID: 269245782}
