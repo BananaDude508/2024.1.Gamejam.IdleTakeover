@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     GameObject[] shopList;
-    int[] speedCosts, strengthCosts, defenceCosts, healthCosts;
+    int[] speedCosts, strengthCosts, defenceCosts, healthCosts, purchaseCounts;
+    int speedPurchases, strengthPurchases, defencePurchases, healthPurchases = 0;
     TextMeshProUGUI[] speedUpgradeTexts, strengthUpgradeTexts, defenceUpgradeTexts, healthUpgradeTexts;
     int currentIndex = 0;
 
@@ -39,6 +40,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        purchaseCounts = new int[]{
+            1, 2, 5, 10 //, 20, 50, 100 // uncomment max purchase size
+        };
         speedCosts = new int[shopList.Length];
         strengthCosts = new int[shopList.Length];
         defenceCosts = new int[shopList.Length];
@@ -53,20 +57,20 @@ public class GameManager : MonoBehaviour
         strengthCosts[0] = 100;
         defenceCosts[0] = 100;
         healthCosts[0] = 100;
-        for (int i = 1; i < shopList.Length; i++)
-        {
-            speedCosts[i] = speedCosts[i-1] * 4 * i;
-            strengthCosts[i] = speedCosts[i-1] * 4 * i;
-            defenceCosts[i] = speedCosts[i-1] * 4 * i;
-            healthCosts[i] = speedCosts[i-1] * 4 * i;
-        }
-        for (int i = 0; i < shopList.Length; i++)
-        {
-            speedUpgradeTexts[i] = shopList[i].transform.GetChild(0).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
-            strengthUpgradeTexts[i] = shopList[i].transform.GetChild(1).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
-            defenceUpgradeTexts[i] = shopList[i].transform.GetChild(2).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
-            healthUpgradeTexts[i] = shopList[i].transform.GetChild(3).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
-        }
+        // for (int i = 1; i < shopList.Length; i++)
+        // {
+        //     speedCosts[i] = speedCosts[i-1] * 4 * i;
+        //     strengthCosts[i] = speedCosts[i-1] * 4 * i;
+        //     defenceCosts[i] = speedCosts[i-1] * 4 * i;
+        //     healthCosts[i] = speedCosts[i-1] * 4 * i;
+        // }
+        // for (int i = 0; i < shopList.Length; i++)
+        // {
+        speedUpgradeTexts[0] = shopList[0].transform.GetChild(0).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
+        strengthUpgradeTexts[0] = shopList[0].transform.GetChild(1).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
+        defenceUpgradeTexts[0] = shopList[0].transform.GetChild(2).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
+        healthUpgradeTexts[0] = shopList[0].transform.GetChild(3).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
+        // }
         enemyStats.NewStats(stats);
         currentEnemy++;
     }
@@ -81,7 +85,7 @@ public class GameManager : MonoBehaviour
         if (enemyStats.HealthCurrent() <= 0)
         {
             stats.ChangeMoney((int)Mathf.Round(enemyStats.HealthMax() * Random.Range(0.25f, 0.5f)));
-            if (currentEnemy == 10) {currentEnemy = 0; enemyStats.NewBossStats(stats); }
+            if (currentEnemy == 10) { currentEnemy = 0; enemyStats.NewBossStats(stats); }
             else enemyStats.NewStats(stats);
             stats.FullHeal();
         }
@@ -91,7 +95,15 @@ public class GameManager : MonoBehaviour
             GameOver();
         }
     }
-  
+
+    float GetSummation(float startingPrice, float inflation, float firstTerm, float termsToUse)
+    {
+        float aN = startingPrice * Mathf.Pow(inflation, firstTerm);
+        float r = inflation;
+        float sN = aN * ((1 - Mathf.Pow(inflation, termsToUse)) / (1 - inflation));
+        return sN;
+    }
+
     void UpdateUIDisplay()
     {
         // Stats
@@ -100,61 +112,60 @@ public class GameManager : MonoBehaviour
         strengthText.SetText(stats.Strength().ToString());
         defenceText.SetText(stats.Defence().ToString());
         healthText.SetText(stats.HealthMax().ToString());
-        
+
         // Slider
-        healthSliderText.SetText(stats.HealthCurrent()+"/"+stats.HealthMax());
+        healthSliderText.SetText(stats.HealthCurrent() + "/" + stats.HealthMax());
         healthSlider.maxValue = stats.HealthMax();
         healthSlider.value = stats.HealthCurrent();
 
         // Upgrade Texts
-        speedUpgradeTexts[currentIndex].SetText("Speed $"+speedCosts[currentIndex]+" for "+(int)Mathf.Round(speedCosts[currentIndex]*0.01f*(currentIndex+0.5f)));
-        strengthUpgradeTexts[currentIndex].SetText("Strength $"+strengthCosts[currentIndex]+" for "+(int)Mathf.Round(strengthCosts[currentIndex]*0.05f*(currentIndex+0.5f)));
-        defenceUpgradeTexts[currentIndex].SetText("Defence $"+defenceCosts[currentIndex]+" for "+(int)Mathf.Round(defenceCosts[currentIndex]*0.03f*(currentIndex+0.5f)));
-        healthUpgradeTexts[currentIndex].SetText("Health $"+healthCosts[currentIndex]+" for "+(int)Mathf.Round(healthCosts[currentIndex]*0.015f*(currentIndex+0.5f)));
-
+        speedUpgradeTexts[0].SetText("Speed $" + Mathf.Ceil(GetSummation(speedCosts[0], 1.1f, speedPurchases, purchaseCounts[currentIndex])) + " for " + (int)purchaseCounts[currentIndex]);
+        strengthUpgradeTexts[0].SetText("Strength $" + Mathf.Ceil(GetSummation(strengthCosts[0], 1.1f, strengthPurchases, purchaseCounts[currentIndex])) + " for " + (int)purchaseCounts[currentIndex]);
+        defenceUpgradeTexts[0].SetText("Defence $" + Mathf.Ceil(GetSummation(defenceCosts[0], 1.1f, defencePurchases, purchaseCounts[currentIndex])) + " for " + (int)purchaseCounts[currentIndex]);
+        healthUpgradeTexts[0].SetText("Health $" + Mathf.Ceil(GetSummation(healthCosts[0], 1.1f, healthPurchases, purchaseCounts[currentIndex])) + " for " + (int)purchaseCounts[currentIndex]);
         // Enemy
         enemySlider.maxValue = enemyStats.HealthMax();
         enemySlider.value = enemyStats.HealthCurrent();
-        enemySliderText.SetText(enemyStats.HealthCurrent()+"/"+enemyStats.HealthMax());
+        enemySliderText.SetText(enemyStats.HealthCurrent() + "/" + enemyStats.HealthMax());
     }
 
     #region Upgrade Purchases
 
     public void PurchaseSpeed(int pageIndex)
     {
-        int cost = speedCosts[pageIndex];
-        int change = (int)Mathf.Round(cost * 0.05f * (pageIndex + 0.5f)); // multiplying in page index means higher
-        if (stats.Money() < cost) return;                                  // tiers actually provide more value (+0.5 so index 0 has value)
-        stats.ChangeMoney(-cost);                                          // Does have the issue(?) of prices and value going up heaaaps
-        stats.ChangeSpeed(change);
-        speedCosts[pageIndex] = (int)Mathf.Round(cost * 1.1f);
+        float cost = (GetSummation(speedCosts[0], 1.1f, speedPurchases, purchaseCounts[currentIndex]));
+        int change = purchaseCounts[currentIndex];
+        if (stats.Money() < cost) return;
+        speedPurchases += change;
+        stats.ChangeMoney(-cost);
+        stats.ChangeHealth(change);
     }
     public void PurchaseStrength(int pageIndex)
     {
-        int cost = strengthCosts[pageIndex];
-        int change = (int)Mathf.Round(cost * 0.05f * (pageIndex + 0.5f));
+        float cost = (GetSummation(strengthCosts[0], 1.1f, strengthPurchases, purchaseCounts[currentIndex]));
+        int change = purchaseCounts[currentIndex];
         if (stats.Money() < cost) return;
+        healthPurchases += change;
         stats.ChangeMoney(-cost);
         stats.ChangeStrength(change);
-        strengthCosts[pageIndex] = (int)Mathf.Round(cost * 1.1f);
     }
     public void PurchaseDefence(int pageIndex)
     {
-        int cost = defenceCosts[pageIndex];
-        int change = (int)Mathf.Round(cost * 0.05f * (pageIndex + 0.5f));
+        float cost = (GetSummation(defenceCosts[0], 1.1f, defencePurchases, purchaseCounts[currentIndex]));
+        int change = purchaseCounts[currentIndex];
         if (stats.Money() < cost) return;
+        defencePurchases += change;
         stats.ChangeMoney(-cost);
         stats.ChangeDefence(change);
-        defenceCosts[pageIndex] = (int)Mathf.Round(cost * 1.1f);
     }
     public void PurchaseHealth(int pageIndex)
     {
-        int cost = healthCosts[pageIndex];
-        int change = (int)Mathf.Round(cost * 0.05f * (pageIndex + 0.5f));
+        float cost = (GetSummation(healthCosts[0], 1.1f, healthPurchases, purchaseCounts[currentIndex]));
+        int change = purchaseCounts[currentIndex];
         if (stats.Money() < cost) return;
+        healthPurchases += change;
         stats.ChangeMoney(-cost);
         stats.ChangeHealth(change);
-        healthCosts[pageIndex] = (int)Mathf.Round(cost * 1.1f);
     }
 
     #endregion
@@ -183,16 +194,16 @@ public class GameManager : MonoBehaviour
 
     public void NextShopPage()
     {
-        shopList[currentIndex].SetActive(false);
+        // shopList[currentIndex].SetActive(false);
         currentIndex = GetNextUnwrappedIndex();
-        shopList[currentIndex].SetActive(true);
+        // shopList[currentIndex].SetActive(true);
     }
 
     public void PreviousShopPage()
     {
-        shopList[currentIndex].SetActive(false);
+        // shopList[currentIndex].SetActive(false);
         currentIndex = GetPreviousUnwrappedIndex();
-        shopList[currentIndex].SetActive(true);
+        // shopList[currentIndex].SetActive(true);
     }
 
     #endregion
@@ -239,7 +250,8 @@ public class GameManager : MonoBehaviour
 [System.Serializable]
 public struct PlayerStats
 {
-    public int speed, strength, defence, healthMax, healthCurrent, money;
+    public int speed, strength, defence, healthMax, healthCurrent;
+    public float money;
 
     public PlayerStats(int speed, int strength, int defence, int healthMax, int money)
     {
@@ -253,28 +265,28 @@ public struct PlayerStats
 
     #region Get/Set Stats
 
-    public void SetSpeed(int change) {speed = change;}
+    public void SetSpeed(int change) { speed = change; }
     public void ChangeSpeed(int change) { speed += change; }
     public int Speed() { return speed; }
 
-    public void SetStrength(int change) {strength = change;}
+    public void SetStrength(int change) { strength = change; }
     public void ChangeStrength(int change) { strength += change; }
     public int Strength() { return strength; }
 
-    public void SetDefence(int change) {defence = change;}
+    public void SetDefence(int change) { defence = change; }
     public void ChangeDefence(int change) { defence += change; }
     public int Defence() { return defence; }
 
-    public void FullHeal() {healthCurrent = healthMax;}
-    public void SetHealthMax(int change) {healthMax = change;}
-    public void SetHealthCurrent(int change) {healthCurrent = change;}
+    public void FullHeal() { healthCurrent = healthMax; }
+    public void SetHealthMax(int change) { healthMax = change; }
+    public void SetHealthCurrent(int change) { healthCurrent = change; }
     public void ChangeHealth(int change) { healthMax += change; healthCurrent += change; }
-    public void ChangeHealthCurrent(int change) { healthCurrent += change;}
-    public int HealthMax () { return healthMax; }
+    public void ChangeHealthCurrent(int change) { healthCurrent += change; }
+    public int HealthMax() { return healthMax; }
     public int HealthCurrent() { return healthCurrent; }
 
-    public void ChangeMoney(int change) { money += change; }
-    public int Money() { return money; }
+    public void ChangeMoney(float change) { money += change; }
+    public float Money() { return money; }
 
     #endregion
 }
@@ -317,23 +329,23 @@ public struct EnemyStats
 
     #region Get/Set Stats
 
-    public void SetSpeed(int change) {speed = change;}
+    public void SetSpeed(int change) { speed = change; }
     public void ChangeSpeed(int change) { speed += change; }
     public int Speed() { return speed; }
 
-    public void SetStrength(int change) {strength = change;}
+    public void SetStrength(int change) { strength = change; }
     public void ChangeStrength(int change) { strength += change; }
     public int Strength() { return strength; }
 
-    public void SetDefence(int change) {defence = change;}
+    public void SetDefence(int change) { defence = change; }
     public void ChangeDefence(int change) { defence += change; }
     public int Defence() { return defence; }
 
-    public void SetHealthMax(int change) {healthMax = change;}
-    public void SetHealthCurrent(int change) {healthCurrent = change;}
+    public void SetHealthMax(int change) { healthMax = change; }
+    public void SetHealthCurrent(int change) { healthCurrent = change; }
     public void ChangeHealth(int change) { healthMax += change; healthCurrent += change; }
     public void ChangeHealthCurrent(int change) { healthCurrent += change; }
-    public int HealthMax () { return healthMax; }
+    public int HealthMax() { return healthMax; }
     public int HealthCurrent() { return healthCurrent; }
 
     #endregion
