@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     private float tPlayer, tEnemy;
 
 
+
     [SerializeField]
     PlayerStats stats = new PlayerStats(1, 10, 0, 100, 1000);
     [SerializeField]
@@ -29,7 +30,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI speedText, strengthText, defenceText, healthText, healthSliderText, enemySliderText;
     public Slider healthSlider, enemySlider;
-
+    public Button tempSpeedButton, tempStrengthButton, tempDefenceButton, tempHealthButton;
     void OnEnable()
     {
         tPlayer = 0f;
@@ -107,7 +108,7 @@ public class GameManager : MonoBehaviour
     void UpdateUIDisplay()
     {
         // Stats
-        moneyText.SetText(stats.Money().ToString());
+        moneyText.SetText(Mathf.Floor(stats.Money()).ToString());
         speedText.SetText(stats.Speed().ToString());
         strengthText.SetText(stats.Strength().ToString());
         defenceText.SetText(stats.Defence().ToString());
@@ -176,8 +177,8 @@ public class GameManager : MonoBehaviour
 
     int GetNextUnwrappedIndex()
     {
-        return (int)Mathf.Min(currentIndex + 1, shopList.Length - 1);
-        // if (currentIndex + 1 >= shopList.Length) return shopList.Length;
+        return (int)Mathf.Min(currentIndex + 1, purchaseCounts.Length - 1);
+        // if (currentIndex + 1 >= purchaseCounts.Length) return purchaseCounts.Length - 1;
         // return currentIndex + 1;
     }
 
@@ -245,6 +246,64 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("Gameover");
     }
+
+    #region Temporary Upgrades
+
+    public void UseSpeedItem()
+    {
+        StartCoroutine(SpeedItem());
+    }
+    IEnumerator SpeedItem()
+    {
+        tempSpeedButton.interactable = false;
+        stats.SetSpeed((int)Mathf.Round(stats.Speed() * 1.2f));
+        yield return new WaitForSeconds(15);
+        stats.SetSpeed((int)Mathf.Round(stats.Speed() / 1.2f));
+        yield return new WaitForSeconds(45);
+        tempSpeedButton.interactable = true;
+    }
+
+    public void UseStrengthItem()
+    {
+        StartCoroutine(StrengthItem());
+    }
+    IEnumerator StrengthItem()
+    {
+        tempStrengthButton.interactable = false;
+        stats.SetStrength((int)Mathf.Round(stats.Strength() * 1.2f));
+        yield return new WaitForSeconds(15);
+        stats.SetStrength((int)Mathf.Round(stats.Strength() / 1.2f));
+        yield return new WaitForSeconds(45);
+        tempStrengthButton.interactable = true;
+    }
+
+    public void UseDefenceItem()
+    {
+        StartCoroutine(DefenceItem());
+    }
+    IEnumerator DefenceItem()
+    {
+        tempDefenceButton.interactable = false;
+        stats.SetDefence((int)Mathf.Round(stats.Defence() * 1.2f));
+        yield return new WaitForSeconds(15);
+        stats.SetDefence((int)Mathf.Round(stats.Defence() / 1.2f));
+        yield return new WaitForSeconds(45);
+        tempDefenceButton.interactable = true;
+    }
+
+    public void UseHealthItem()
+    {
+        StartCoroutine(HealthItem());
+    }
+    IEnumerator HealthItem()
+    {
+        tempHealthButton.interactable = false;
+        stats.FullHeal();
+        yield return new WaitForSeconds(60);
+        tempHealthButton.interactable = true;
+    }
+
+    #endregion
 }
 
 [System.Serializable]
@@ -289,6 +348,7 @@ public struct PlayerStats
     public float Money() { return money; }
 
     #endregion
+
 }
 
 [System.Serializable]
