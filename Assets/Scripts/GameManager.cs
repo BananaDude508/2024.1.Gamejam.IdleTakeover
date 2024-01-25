@@ -95,6 +95,13 @@ public class GameManager : MonoBehaviour
         {
             GameOver();
         }
+
+        if (Input.GetKeyDown("escape"))
+        {
+            Application.Quit();
+        }
+
+        Debug.Log(enemyStats.HealthCurrent() + "/" + enemyStats.HealthMax() + "=" + enemyStats.HealthPercent());
     }
 
     float GetSummation(float startingPrice, float inflation, float firstTerm, float termsToUse)
@@ -126,8 +133,8 @@ public class GameManager : MonoBehaviour
         healthUpgradeTexts[0].SetText("Health $" + Mathf.Ceil(GetSummation(healthCosts[0], 1.1f, healthPurchases, purchaseCounts[currentIndex])) + " for " + (int)purchaseCounts[currentIndex]);
         // Enemy
         enemySlider.maxValue = enemyStats.HealthMax();
-        enemySlider.value = enemyStats.HealthCurrent();
-        enemySliderText.SetText(enemyStats.HealthCurrent() + "/" + enemyStats.HealthMax());
+        enemySlider.value = enemyStats.HealthMax() - enemyStats.HealthCurrent();
+        enemySliderText.SetText((100f-(enemyStats.HealthPercent()*100f)).ToString("F0") + "% control");
     }
 
     #region Upgrade Purchases
@@ -139,7 +146,7 @@ public class GameManager : MonoBehaviour
         if (stats.Money() < cost) return;
         speedPurchases += change;
         stats.ChangeMoney(-cost);
-        stats.ChangeHealth(change);
+        stats.ChangeSpeed(change);
     }
     public void PurchaseStrength(int pageIndex)
     {
@@ -407,6 +414,8 @@ public struct EnemyStats
     public void ChangeHealthCurrent(int change) { healthCurrent += change; }
     public int HealthMax() { return healthMax; }
     public int HealthCurrent() { return healthCurrent; }
+
+    public float HealthPercent() { return (float)healthCurrent / (float)healthMax; }
 
     #endregion
 
