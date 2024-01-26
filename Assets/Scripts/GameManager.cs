@@ -164,7 +164,7 @@ public class GameManager : MonoBehaviour
         float cost = (GetSummation(strengthCosts[0], 1.1f, strengthPurchases, purchaseCounts[currentIndex]));
         int change = purchaseCounts[currentIndex];
         if (stats.Money() < cost) return;
-        healthPurchases += change;
+        strengthPurchases += change;
         stats.ChangeMoney(-cost);
         stats.ChangeStrength(change);
     }

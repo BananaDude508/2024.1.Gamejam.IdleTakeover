@@ -257,7 +257,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Click the glowing building to actively take control of it
+  m_text: 'Click the centre building to actively take control of it
 
 
     You passively
