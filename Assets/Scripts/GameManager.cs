@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour
 
     private float tPlayer, tEnemy;
 
+    public Image enemySprite;
+    public Sprite normalBuilding;
+    public Sprite damagedBuilding;
+
 
 
     [SerializeField]
@@ -89,6 +93,7 @@ public class GameManager : MonoBehaviour
             if (currentEnemy == 10) { currentEnemy = 0; enemyStats.NewBossStats(stats); }
             else enemyStats.NewStats(stats);
             stats.FullHeal();
+            enemySprite.sprite = normalBuilding;
         }
 
         if (stats.healthCurrent <= 0)
@@ -101,7 +106,10 @@ public class GameManager : MonoBehaviour
             Application.Quit();
         }
 
-        Debug.Log(enemyStats.HealthCurrent() + "/" + enemyStats.HealthMax() + "=" + enemyStats.HealthPercent());
+        if (enemyStats.HealthPercent() <= 0.5f)
+        {
+            enemySprite.sprite = damagedBuilding;
+        }
     }
 
     float GetSummation(float startingPrice, float inflation, float firstTerm, float termsToUse)
@@ -216,8 +224,6 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-    #endregion
-
     #region Attack Handling
 
     void HurtEnemy(int damage, int atkSpeed)
@@ -249,6 +255,7 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #endregion
     void GameOver()
     {
         SceneManager.LoadScene("Gameover");
