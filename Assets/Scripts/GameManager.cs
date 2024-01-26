@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     int currentIndex = 0;
 
     int currentEnemy = 0;
+    int controlledBuildings = 0;
 
     private float tPlayer, tEnemy;
 
@@ -89,12 +90,13 @@ public class GameManager : MonoBehaviour
 
         if (enemyStats.HealthCurrent() <= 0)
         {
-            stats.ChangeMoney((int)Mathf.Round(enemyStats.HealthMax() * Random.Range(0.25f, 0.5f)));
+            stats.ChangeMoney((10 * controlledBuildings) + (int)(Random.Range(0.75f, 1.25f) * 100));
             if (currentEnemy == 10) { currentEnemy = 0; enemyStats.NewBossStats(stats); }
             else enemyStats.NewStats(stats);
             stats.FullHeal();
             enemySprite.sprite = normalBuilding;
             currentEnemy++;
+            controlledBuildings++;
         }
 
         if (stats.healthCurrent <= 0)
@@ -107,8 +109,8 @@ public class GameManager : MonoBehaviour
             Application.Quit();
         }
 
-        if (enemyStats.HealthPercent() <= 0.66f) { enemySprite.sprite = damagedBuilding; }
-        if (enemyStats.HealthPercent() <= 0.33f) { enemySprite.sprite = veryDamagedBuilding; }
+        if (enemyStats.HealthPercent() <= 0.50f) { enemySprite.sprite = damagedBuilding; }
+        if (enemyStats.HealthPercent() <= 0.15f) { enemySprite.sprite = veryDamagedBuilding; }
         
     }
 
@@ -128,7 +130,7 @@ public class GameManager : MonoBehaviour
         strengthText.SetText(stats.Strength().ToString());
         defenceText.SetText(stats.Defence().ToString());
         healthText.SetText(stats.HealthMax().ToString());
-        counterText.SetText("Controlling " + currentEnemy + " buildings");
+        counterText.SetText("Controlling " + controlledBuildings + " buildings");
 
         // Slider
         healthSliderText.SetText(stats.HealthCurrent() + "/" + stats.HealthMax());

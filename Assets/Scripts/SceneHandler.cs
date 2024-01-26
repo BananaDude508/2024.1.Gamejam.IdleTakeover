@@ -4,6 +4,11 @@ using UnityEngine.UI;
 
 public class SceneHandler : MonoBehaviour
 {
+    void Start()
+    {
+        Screen.SetResolution(1920, 1080, true);
+    }
+
     public void LoadScene(string nextScene)
     {
         SceneManager.LoadScene(nextScene);
