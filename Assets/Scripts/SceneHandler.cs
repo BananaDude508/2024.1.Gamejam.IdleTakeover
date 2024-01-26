@@ -12,4 +12,8 @@ public class SceneHandler : MonoBehaviour
     {
         Application.Quit();
     }
+    public void OpenGDD()
+    {
+        Application.OpenURL("https://docs.google.com/document/d/1kXETfnwbmXMCKj2XOXq0WfkKFSMS_4LuKpK8HVK4_MY/edit?usp=sharing");
+    }
 }

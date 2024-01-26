@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     public Image enemySprite;
     public Sprite normalBuilding;
     public Sprite damagedBuilding;
+    public Sprite veryDamagedBuilding;
 
 
 
@@ -32,7 +33,7 @@ public class GameManager : MonoBehaviour
     EnemyStats enemyStats = new EnemyStats(1, 10, 0, 100);
 
     public TextMeshProUGUI moneyText;
-    public TextMeshProUGUI speedText, strengthText, defenceText, healthText, healthSliderText, enemySliderText;
+    public TextMeshProUGUI speedText, strengthText, defenceText, healthText, healthSliderText, enemySliderText, counterText;
     public Slider healthSlider, enemySlider;
     public Button tempSpeedButton, tempStrengthButton, tempDefenceButton, tempHealthButton;
     void OnEnable()
@@ -77,7 +78,6 @@ public class GameManager : MonoBehaviour
         healthUpgradeTexts[0] = shopList[0].transform.GetChild(3).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
         // }
         enemyStats.NewStats(stats);
-        currentEnemy++;
     }
 
     void Update()
@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour
             else enemyStats.NewStats(stats);
             stats.FullHeal();
             enemySprite.sprite = normalBuilding;
+            currentEnemy++;
         }
 
         if (stats.healthCurrent <= 0)
@@ -106,10 +107,9 @@ public class GameManager : MonoBehaviour
             Application.Quit();
         }
 
-        if (enemyStats.HealthPercent() <= 0.5f)
-        {
-            enemySprite.sprite = damagedBuilding;
-        }
+        if (enemyStats.HealthPercent() <= 0.66f) { enemySprite.sprite = damagedBuilding; }
+        if (enemyStats.HealthPercent() <= 0.33f) { enemySprite.sprite = veryDamagedBuilding; }
+        
     }
 
     float GetSummation(float startingPrice, float inflation, float firstTerm, float termsToUse)
@@ -123,11 +123,12 @@ public class GameManager : MonoBehaviour
     void UpdateUIDisplay()
     {
         // Stats
-        moneyText.SetText(Mathf.Floor(stats.Money()).ToString());
+        moneyText.SetText("$ "+ Mathf.Floor(stats.Money()).ToString());
         speedText.SetText(stats.Speed().ToString());
         strengthText.SetText(stats.Strength().ToString());
         defenceText.SetText(stats.Defence().ToString());
         healthText.SetText(stats.HealthMax().ToString());
+        counterText.SetText("Controlling " + currentEnemy + " buildings");
 
         // Slider
         healthSliderText.SetText(stats.HealthCurrent() + "/" + stats.HealthMax());
